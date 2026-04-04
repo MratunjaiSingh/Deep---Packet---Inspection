@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "cap": "^0.2.1",
+    "express": "^5.2.1",
+    "geoip-lite": "^1.4.10",
+    "socket.io": "^4.8.3"
+  }
+}

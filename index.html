@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DPI Firewall Suite v7.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px;min-height:100vh;color:#1a1a1a}
+    .hero{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .hero-left{display:flex;align-items:center;gap:14px}
+    .shield{width:46px;height:46px;background:#185FA5;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .shield svg{width:24px;height:24px;fill:white}
+    .hero-title{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+    .hero-desc{font-size:12px;color:#666;line-height:1.55;max-width:500px}
+    .live-pill{display:flex;align-items:center;gap:6px;background:#eaf3de;border:1px solid #c0dd97;border-radius:20px;padding:6px 14px;font-size:12px;color:#3b6d11;font-weight:500;flex-shrink:0}
+    .live-dot{width:7px;height:7px;background:#1d9e75;border-radius:50%;animation:blink 1.2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+    .section-label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+    .step-num{width:18px;height:18px;border-radius:50%;background:#f0f0f0;border:1px solid #e0e0e0;font-size:9px;color:#888;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+    .scard{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:15px 17px}
+    .scard-label{font-size:11px;color:#888;margin-bottom:5px;font-weight:500}
+    .scard-val{font-size:26px;font-weight:600;color:#1a1a1a;line-height:1}
+    .scard-sub{font-size:10px;color:#bbb;margin-top:4px}
+    .scard-val.blue{color:#185FA5}
+    .scard-val.red{color:#a32d2d}
+    .speed-track{height:3px;background:#f0f0f0;border-radius:2px;margin-top:8px;overflow:hidden}
+    .speed-fill{height:100%;background:#185FA5;border-radius:2px;transition:width 0.6s}
+    .row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:18px}
+    .row3{display:grid;grid-template-columns:2fr 3fr;gap:12px;margin-bottom:18px}
+    .row4{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+    .card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px}
+    .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+    .card-title{font-size:13px;font-weight:600;color:#1a1a1a}
+    .cbadge{font-size:10px;padding:2px 9px;border-radius:20px;background:#f5f5f7;color:#888;border:1px solid #e5e5e5}
+    .cbadge.red{background:#fcebeb;color:#a32d2d;border-color:#f7c1c1}
+    .tbl-head{display:grid;grid-template-columns:62px 36px 1fr 95px;gap:8px;font-size:10px;color:#bbb;padding:0 0 7px;border-bottom:1px solid #f0f0f0;margin-bottom:2px;font-weight:500}
+    .tbl-row{display:grid;grid-template-columns:62px 36px 1fr 95px;gap:8px;font-size:11px;padding:6px 0;border-bottom:1px solid #f5f5f5;align-items:center}
+    .tbl-row.blocked{background:rgba(163,45,45,0.04);border-left:2px solid #e24b4a;padding-left:5px}
+    .badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block;white-space:nowrap}
+    .b-tcp{background:#e6f1fb;color:#185fa5}
+    .b-udp{background:#eaf3de;color:#3b6d11}
+    .b-icmp{background:#faeeda;color:#854f0b}
+    .b-app{background:#eeedfe;color:#534ab7}
+    .b-block{background:#fcebeb;color:#a32d2d}
+    .donut-wrap{display:flex;align-items:center;gap:16px}
+    .app-leg{flex:1}
+    .app-leg-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
+    .app-leg-left{display:flex;align-items:center;gap:7px;color:#1a1a1a}
+    .app-leg-pct{color:#aaa;font-size:11px}
+    .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .alert-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:#fcebeb;border:1px solid #f7c1c1;margin-bottom:6px}
+    .alert-dot{width:8px;height:8px;background:#a32d2d;border-radius:50%;flex-shrink:0;margin-top:3px}
+    .alert-body{flex:1;min-width:0}
+    .alert-title{font-size:11px;font-weight:600;color:#a32d2d}
+    .alert-detail{font-size:10px;color:#791f1f;font-family:monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .alert-time{font-size:10px;color:#f09595;flex-shrink:0}
+    .threat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
+    .threat-ip{color:#888;font-family:monospace;font-size:11px}
+    .threat-bar-wrap{flex:1;margin:0 10px;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
+    .threat-bar{height:100%;background:#e24b4a;border-radius:2px;transition:width 0.5s}
+    .threat-count{color:#a32d2d;font-weight:600;font-size:11px}
+    .empty-msg{font-size:12px;color:#bbb;padding:4px 0}
+    @media(max-width:700px){
+      .stats{grid-template-columns:1fr 1fr}
+      .row2,.row3,.row4{grid-template-columns:1fr}
+      .hero{flex-direction:column;align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="shield">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5L12 1z"/></svg>
+      </div>
+      <div>
+        <div class="hero-title">Deep Packet Inspection — Firewall Suite</div>
+        <div class="hero-desc">Captures raw network traffic, identifies applications via protocol analysis, and blocks malicious packets in real time — built with C++, libpcap, and Node.js.</div>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Live Demo</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section-label"><span class="step-num">1</span> What is being captured</div>
+  <div class="stats">
+    <div class="scard">
+      <div class="scard-label">Packets Captured</div>
+      <div class="scard-val blue" id="s-total">0</div>
+      <div class="scard-sub">this session</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Live Speed</div>
+      <div class="scard-val" id="s-speed">0.00</div>
+      <div class="scard-sub">Kbps</div>
+      <div class="speed-track"><div class="speed-fill" id="s-bar" style="width:0%"></div></div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Unique Endpoints</div>
+      <div class="scard-val" id="s-ips">0</div>
+      <div class="scard-sub">active IPs</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Threats Blocked</div>
+      <div class="scard-val red" id="s-blocked">0</div>
+      <div class="scard-sub">malicious packets</div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section-label"><span class="step-num">2</span> Raw packet stream</div>
+  <div class="row2">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Live Traffic</span>
+        <span class="cbadge" id="stream-badge">0 packets</span>
+      </div>
+      <div class="tbl-head"><span>Protocol</span><span>Geo</span><span>Flow</span><span>Detected As</span></div>
+      <div id="log-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Packets / Second</span>
+        <span class="cbadge">Timeline</span>
+      </div>
+      <canvas id="timeline"></canvas>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section-label"><span class="step-num">3</span> Application identification — DPI engine output</div>
+  <div class="row3">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">App Traffic Breakdown</span>
+        <span class="cbadge" id="app-badge">0 apps</span>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="appdist" width="100" height="100" style="flex-shrink:0"></canvas>
+        <div class="app-leg" id="app-legend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Protocol Split</span>
+        <span class="cbadge">TCP / UDP / ICMP</span>
+      </div>
+      <canvas id="proto-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="section-label"><span class="step-num">4</span> Threat detection and blocking</div>
+  <div class="row4">
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Threat Alerts</span>
+        <span class="cbadge red" id="alert-badge">0 alerts</span>
+      </div>
+      <div id="alert-list"><div class="empty-msg">No threats detected yet</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Top Blocked Sources</span>
+        <span class="cbadge">by packet count</span>
+      </div>
+      <div id="threat-list"><div class="empty-msg">Monitoring...</div></div>
+    </div>
+  </div>
+
+  <script>
+    const PKTS=[
+      {src:'192.168.1.12',dst:'142.250.80.46',proto:'TCP',country:'US',app:'Google',blocked:false},
+      {src:'192.168.1.12',dst:'157.240.22.35',proto:'TCP',country:'US',app:'WhatsApp',blocked:false},
+      {src:'10.0.0.5',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',blocked:true},
+      {src:'192.168.1.12',dst:'172.217.14.78',proto:'TCP',country:'US',app:'YouTube',blocked:false},
+      {src:'10.0.0.8',dst:'1.1.1.1',proto:'UDP',country:'AU',app:'DNS',blocked:true},
+      {src:'192.168.1.55',dst:'103.102.166.10',proto:'TCP',country:'IN',app:'Wikipedia',blocked:false},
+      {src:'172.16.0.3',dst:'23.185.0.2',proto:'TCP',country:'US',app:'HTTPS',blocked:false},
+      {src:'192.168.1.12',dst:'140.82.112.4',proto:'TCP',country:'US',app:'GitHub',blocked:false},
+      {src:'10.0.0.2',dst:'1.2.3.4',proto:'ICMP',country:'CN',app:'Unknown',blocked:true},
+      {src:'192.168.1.88',dst:'93.184.216.34',proto:'TCP',country:'US',app:'HTTPS',blocked:false},
+      {src:'172.16.0.9',dst:'104.18.32.10',proto:'TCP',country:'IN',app:'LeetCode',blocked:false},
+      {src:'10.0.0.15',dst:'35.190.0.1',proto:'UDP',country:'SG',app:'DNS',blocked:false},
+      {src:'192.168.2.3',dst:'34.107.221.82',proto:'TCP',country:'DE',app:'GFG',blocked:false},
+      {src:'10.0.0.7',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',blocked:true},
+      {src:'192.168.3.5',dst:'52.94.236.248',proto:'TCP',country:'US',app:'AWS',blocked:false},
+      {src:'10.0.1.2',dst:'1.2.3.4',proto:'TCP',country:'RU',app:'Unknown',blocked:true},
+    ];
+    const ACLR={
+      'Google':'#185FA5','YouTube':'#A32D2D','WhatsApp':'#0F6E56','GitHub':'#3C3489',
+      'LeetCode':'#854F0B','Wikipedia':'#3B6D11','HTTPS':'#5F5E5A','DNS':'#D85A30',
+      'GFG':'#993556','AWS':'#BA7517','Unknown':'#888780'
+    };
+
+    let total=0,blocked=0,idx=0,alertCount=0,pps=0,tcpC=0,udpC=0,icmpC=0;
+    const ips=new Set(),appC={},threats={};
+    const tlD=Array(20).fill(0),tlL=Array(20).fill('');
+
+    const tlChart=new Chart(document.getElementById('timeline').getContext('2d'),{
+      type:'line',
+      data:{labels:tlL,datasets:[{data:tlD,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.07)',borderWidth:1.5,pointRadius:0,fill:true,tension:0.45}]},
+      options:{animation:{duration:200},responsive:true,scales:{x:{display:false},y:{display:true,grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#bbb',font:{size:10},maxTicksLimit:4}}},plugins:{legend:{display:false}}}
+    });
+
+    const appChart=new Chart(document.getElementById('appdist').getContext('2d'),{
+      type:'doughnut',
+      data:{labels:[],datasets:[{data:[],backgroundColor:[],borderWidth:0}]},
+      options:{cutout:'65%',animation:{duration:300},plugins:{legend:{display:false}},responsive:false}
+    });
+
+    const protoChart=new Chart(document.getElementById('proto-chart').getContext('2d'),{
+      type:'bar',
+      data:{labels:['TCP','UDP','ICMP'],datasets:[{data:[0,0,0],backgroundColor:['#185FA5','#3B6D11','#854F0B'],borderRadius:6,borderWidth:0}]},
+      options:{animation:{duration:300},responsive:true,scales:{x:{grid:{display:false},ticks:{color:'#aaa',font:{size:11}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#bbb',font:{size:10},maxTicksLimit:4}}},plugins:{legend:{display:false}}}
+    });
+
+    function ts(){
+      const n=new Date();
+      return[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');
+    }
+
+    function updateApp(){
+      const entries=Object.entries(appC).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const tot=entries.reduce((s,e)=>s+e[1],0)||1;
+      appChart.data.labels=entries.map(e=>e[0]);
+      appChart.data.datasets[0].data=entries.map(e=>e[1]);
+      appChart.data.datasets[0].backgroundColor=entries.map(e=>ACLR[e[0]]||'#888');
+      appChart.update();
+      document.getElementById('app-badge').textContent=Object.keys(appC).length+' apps';
+      document.getElementById('app-legend').innerHTML=entries.map(([app,n])=>`
+        <div class="app-leg-row">
+          <div class="app-leg-left"><div class="ldot" style="background:${ACLR[app]||'#888'}"></div>${app}</div>
+          <span class="app-leg-pct">${Math.round(n/tot*100)}%</span>
+        </div>`).join('');
+    }
+
+    function updateThreats(){
+      const top=Object.entries(threats).sort((a,b)=>b[1]-a[1]).slice(0,4);
+      const max=top[0]?top[0][1]:1;
+      if(!top.length)return;
+      document.getElementById('threat-list').innerHTML=top.map(([ip,n])=>`
+        <div class="threat-row">
+          <span class="threat-ip">${ip}</span>
+          <div class="threat-bar-wrap"><div class="threat-bar" style="width:${Math.round(n/max*100)}%"></div></div>
+          <span class="threat-count">${n}</span>
+        </div>`).join('');
+    }
+
+    function tick(){
+      const p=PKTS[idx%PKTS.length]; idx++;
+      total++; pps++;
+      ips.add(p.src); ips.add(p.dst);
+      appC[p.app]=(appC[p.app]||0)+1;
+      if(p.proto==='TCP')tcpC++; else if(p.proto==='UDP')udpC++; else icmpC++;
+
+      if(p.blocked){
+        blocked++;
+        threats[p.dst]=(threats[p.dst]||0)+1;
+        alertCount++;
+        document.getElementById('alert-badge').textContent=alertCount+' alerts';
+        const al=document.getElementById('alert-list');
+        if(al.firstChild&&al.firstChild.className==='empty-msg'){al.innerHTML='';}
+        const d=document.createElement('div');
+        d.className='alert-item';
+        d.innerHTML=`<div class="alert-dot"></div>
+          <div class="alert-body">
+            <div class="alert-title">Threat Blocked — ${p.country}</div>
+            <div class="alert-detail">${p.src} &rarr; ${p.dst}</div>
+          </div>
+          <div class="alert-time">${ts()}</div>`;
+        al.prepend(d);
+        if(al.children.length>5)al.removeChild(al.lastChild);
+        updateThreats();
+      }
+
+      document.getElementById('s-total').textContent=total;
+      document.getElementById('s-blocked').textContent=blocked;
+      document.getElementById('s-ips').textContent=ips.size;
+      document.getElementById('stream-badge').textContent=total+' packets';
+
+      protoChart.data.datasets[0].data=[tcpC,udpC,icmpC];
+      protoChart.update();
+      updateApp();
+
+      const list=document.getElementById('log-list');
+      const row=document.createElement('div');
+      row.className='tbl-row'+(p.blocked?' blocked':'');
+      const pc=p.proto==='TCP'?'b-tcp':p.proto==='UDP'?'b-udp':'b-icmp';
+      const ab=p.blocked
+        ?`<span class="badge b-block">Blocked</span>`
+        :`<span class="badge b-app">${p.app}</span>`;
+      row.innerHTML=`
+        <span><span class="badge ${pc}">${p.proto}</span></span>
+        <span style="font-size:11px;color:#888">${p.country}</span>
+        <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a1a1a">${p.src}&rarr;${p.dst}</span>
+        <span>${ab}</span>`;
+      list.prepend(row);
+      if(list.children.length>12)list.removeChild(list.lastChild);
+    }
+
+    setInterval(tick,550);
+    setInterval(()=>{
+      tlD.shift(); tlD.push(pps);
+      tlL.shift(); tlL.push('');
+      tlChart.update();
+      const spd=(pps*500+Math.random()*50).toFixed(2);
+      document.getElementById('s-speed').textContent=spd;
+      document.getElementById('s-bar').style.width=Math.min(parseFloat(spd)/15,100)+'%';
+      pps=0;
+    },1000);
+  </script>
+</body>
+</html> 
