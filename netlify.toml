@@ -1,3 +1,6 @@
- [build]
+[build]
   publish = "."
-  command = "" 
+  command = ""
+
+[build.environment]
+  NPM_FLAGS = "--no-optional" 

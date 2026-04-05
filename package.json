@@ -1,8 +1,17 @@
 {
+  "name": "packet-analyzer",
+  "version": "1.0.0",
+  "description": "Deep Packet Inspection Firewall Suite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "cap": "^0.2.1",
-    "express": "^5.2.1",
-    "geoip-lite": "^1.4.10",
-    "socket.io": "^4.8.3"
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  },
+  "optionalDependencies": {
+    "cap": "^0.2.4",
+    "geoip-lite": "^1.4.7"
   }
-}
+} 
