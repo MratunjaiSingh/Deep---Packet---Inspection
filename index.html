@@ -1,319 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DPI Firewall Suite v7.0</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px;min-height:100vh;color:#1a1a1a}
-    .hero{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .hero-left{display:flex;align-items:center;gap:14px}
-    .shield{width:46px;height:46px;background:#185FA5;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .shield svg{width:24px;height:24px;fill:white}
-    .hero-title{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
-    .hero-desc{font-size:12px;color:#666;line-height:1.55;max-width:500px}
-    .live-pill{display:flex;align-items:center;gap:6px;background:#eaf3de;border:1px solid #c0dd97;border-radius:20px;padding:6px 14px;font-size:12px;color:#3b6d11;font-weight:500;flex-shrink:0}
-    .live-dot{width:7px;height:7px;background:#1d9e75;border-radius:50%;animation:blink 1.2s infinite}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .section-label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 10px;display:flex;align-items:center;gap:7px}
-    .step-num{width:18px;height:18px;border-radius:50%;background:#f0f0f0;border:1px solid #e0e0e0;font-size:9px;color:#888;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-    .scard{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:15px 17px}
-    .scard-label{font-size:11px;color:#888;margin-bottom:5px;font-weight:500}
-    .scard-val{font-size:26px;font-weight:600;color:#1a1a1a;line-height:1}
-    .scard-sub{font-size:10px;color:#bbb;margin-top:4px}
-    .scard-val.blue{color:#185FA5}
-    .scard-val.red{color:#a32d2d}
-    .speed-track{height:3px;background:#f0f0f0;border-radius:2px;margin-top:8px;overflow:hidden}
-    .speed-fill{height:100%;background:#185FA5;border-radius:2px;transition:width 0.6s}
-    .row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:18px}
-    .row3{display:grid;grid-template-columns:2fr 3fr;gap:12px;margin-bottom:18px}
-    .row4{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
-    .card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px}
-    .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
-    .card-title{font-size:13px;font-weight:600;color:#1a1a1a}
-    .cbadge{font-size:10px;padding:2px 9px;border-radius:20px;background:#f5f5f7;color:#888;border:1px solid #e5e5e5}
-    .cbadge.red{background:#fcebeb;color:#a32d2d;border-color:#f7c1c1}
-    .tbl-head{display:grid;grid-template-columns:62px 36px 1fr 95px;gap:8px;font-size:10px;color:#bbb;padding:0 0 7px;border-bottom:1px solid #f0f0f0;margin-bottom:2px;font-weight:500}
-    .tbl-row{display:grid;grid-template-columns:62px 36px 1fr 95px;gap:8px;font-size:11px;padding:6px 0;border-bottom:1px solid #f5f5f5;align-items:center}
-    .tbl-row.blocked{background:rgba(163,45,45,0.04);border-left:2px solid #e24b4a;padding-left:5px}
-    .badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block;white-space:nowrap}
-    .b-tcp{background:#e6f1fb;color:#185fa5}
-    .b-udp{background:#eaf3de;color:#3b6d11}
-    .b-icmp{background:#faeeda;color:#854f0b}
-    .b-app{background:#eeedfe;color:#534ab7}
-    .b-block{background:#fcebeb;color:#a32d2d}
-    .donut-wrap{display:flex;align-items:center;gap:16px}
-    .app-leg{flex:1}
-    .app-leg-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
-    .app-leg-left{display:flex;align-items:center;gap:7px;color:#1a1a1a}
-    .app-leg-pct{color:#aaa;font-size:11px}
-    .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .alert-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:#fcebeb;border:1px solid #f7c1c1;margin-bottom:6px}
-    .alert-dot{width:8px;height:8px;background:#a32d2d;border-radius:50%;flex-shrink:0;margin-top:3px}
-    .alert-body{flex:1;min-width:0}
-    .alert-title{font-size:11px;font-weight:600;color:#a32d2d}
-    .alert-detail{font-size:10px;color:#791f1f;font-family:monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .alert-time{font-size:10px;color:#f09595;flex-shrink:0}
-    .threat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
-    .threat-ip{color:#888;font-family:monospace;font-size:11px}
-    .threat-bar-wrap{flex:1;margin:0 10px;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
-    .threat-bar{height:100%;background:#e24b4a;border-radius:2px;transition:width 0.5s}
-    .threat-count{color:#a32d2d;font-weight:600;font-size:11px}
-    .empty-msg{font-size:12px;color:#bbb;padding:4px 0}
-    @media(max-width:700px){
-      .stats{grid-template-columns:1fr 1fr}
-      .row2,.row3,.row4{grid-template-columns:1fr}
-      .hero{flex-direction:column;align-items:flex-start}
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PacketGuard_Deep_Packet_Inspection Firewall Suite</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:#f0f2f5}
+.topbar{background:#1a1a2e;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:44px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.logo-box{display:flex;align-items:center;gap:7px}
+.logo-icon{width:26px;height:26px;background:#185FA5;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:14px;height:14px;fill:white}
+.logo-name{font-size:14px;font-weight:600;color:#fff}
+.logo-sub{font-size:11px;color:#8b9ec7;border-left:1px solid #3a3a5c;padding-left:10px;margin-left:4px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-pill{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #3a3a5c;color:#8b9ec7;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.tb-pill.alert{background:#a32d2d;border-color:#a32d2d;color:#fff}
+.tb-pill.arch{background:#185FA5;border-color:#185FA5;color:#fff}
+.live-dot{width:6px;height:6px;background:#1d9e75;border-radius:50%;animation:blink 1.2s infinite;display:inline-block}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.navbar{background:#fff;border-bottom:1px solid #e5e5e5;padding:0 20px;display:flex;align-items:center;gap:0;overflow-x:auto}
+.nav-item{padding:12px 16px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s}
+.nav-item:hover{color:#185FA5}
+.nav-item.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600}
+.content{padding:16px 20px}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:12px 14px}
+.stat-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.stat-val{font-size:20px;font-weight:700;color:#1a1a1a;line-height:1}
+.stat-sub{font-size:10px;color:#bbb;margin-top:3px}
+.stat-val.blue{color:#185FA5}.stat-val.red{color:#a32d2d}.stat-val.amber{color:#854f0b}
+.sptrack{height:3px;background:#f0f0f0;border-radius:2px;margin-top:6px;overflow:hidden}
+.spfill{height:100%;background:#185FA5;border-radius:2px;transition:width 0.6s}
+.panel{background:#fff;border:1px solid #e5e5e5;border-radius:8px;margin-bottom:14px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0}
+.panel-title{font-size:13px;font-weight:600;color:#1a1a1a}
+.panel-controls{display:flex;align-items:center;gap:6px}
+.pselect{font-size:11px;padding:3px 8px;border:1px solid #e0e0e0;border-radius:6px;background:#f8f8f8;color:#555;cursor:pointer;outline:none}
+.pbadge{font-size:10px;padding:2px 8px;border-radius:20px;background:#f0f0f0;color:#888}
+.pbadge.red{background:#fcebeb;color:#a32d2d}
+.pbadge.green{background:#eaf3de;color:#3b6d11}
+.pbadge.amber{background:#faeeda;color:#854f0b}
+.pbadge.purple{background:#eeedfe;color:#534ab7}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#fafafa}
+th{padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#888;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+td{padding:8px 12px;font-size:12px;color:#333;border-bottom:1px solid #f8f8f8;white-space:nowrap}
+tr:hover td{background:#fafcff}
+tr.blocked td{background:rgba(163,45,45,0.03)}
+tr.blocked td:first-child{border-left:2px solid #e24b4a}
+tr.throttled td{background:rgba(133,79,11,0.03)}
+tr.throttled td:first-child{border-left:2px solid #854f0b}
+tr.destroyed td{background:rgba(83,74,183,0.03)}
+tr.destroyed td:first-child{border-left:2px solid #534ab7}
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block}
+.b-tcp{background:#e6f1fb;color:#185fa5}
+.b-udp{background:#eaf3de;color:#3b6d11}
+.b-icmp{background:#faeeda;color:#854f0b}
+.b-allow{background:#eaf3de;color:#3b6d11}
+.b-block{background:#fcebeb;color:#a32d2d}
+.b-throttle{background:#faeeda;color:#854f0b}
+.b-destroy{background:#eeedfe;color:#534ab7}
+.traffic-bar{display:flex;align-items:center;gap:6px}
+.tbar{height:5px;background:#185FA5;border-radius:3px;min-width:4px}
+.tbar.red{background:#e24b4a}
+.tbar.amber{background:#854f0b}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.mini-table th{padding:6px 10px;font-size:10px}
+.mini-table td{padding:6px 10px;font-size:11px}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+.dc{background:#f8f8f8;border:1px solid #ebebeb;border-radius:8px;padding:14px}
+.dc-title{font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.dc-desc{font-size:11px;color:#aaa;margin-bottom:10px;line-height:1.5}
+.inp{width:100%;padding:7px 9px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:7px;outline:none}
+.inp:focus{border-color:#185FA5}
+.dbtn{width:100%;padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;margin-bottom:6px;transition:all 0.2s}
+.dbtn.r{background:#a32d2d;color:#fff}
+.dbtn.a{background:#854f0b;color:#fff}
+.dbtn.p{background:#534ab7;color:#fff}
+.tog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tog-label{font-size:12px;color:#555}
+.tog{position:relative;width:34px;height:18px;cursor:pointer}
+.tog input{opacity:0;width:0;height:0}
+.tsl{position:absolute;inset:0;background:#e0e0e0;border-radius:20px;transition:0.3s}
+.tsl:before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:0.3s}
+input:checked+.tsl{background:#a32d2d}
+input:checked+.tsl:before{transform:translateX(16px)}
+.range-label{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px}
+.range-val{font-weight:600;color:#854f0b}
+input[type=range]{width:100%;accent-color:#854f0b;margin-bottom:6px}
+.ebox{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:8px;margin-top:4px}
+.elabel{font-size:10px;color:#bbb;margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+.eval{font-size:12px;font-weight:600;color:#1a1a1a}
+.eval.red{color:#a32d2d}.eval.amber{color:#854f0b}.eval.green{color:#0f6e56}.eval.purple{color:#534ab7}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px}
+.fi{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:6px 8px}
+.fi-label{font-size:10px;color:#bbb;margin-bottom:2px;font-weight:600}
+.fi-val{font-size:11px;font-weight:600;color:#1a1a1a;font-family:monospace}
+.fi-val.bad{color:#a32d2d}.fi-val.ok{color:#0f6e56}
+</style>
 </head>
 <body>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-left">
-      <div class="shield">
-        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5L12 1z"/></svg>
-      </div>
-      <div>
-        <div class="hero-title">Deep Packet Inspection — Firewall Suite</div>
-        <div class="hero-desc">Captures raw network traffic, identifies applications via protocol analysis, and blocks malicious packets in real time — built with C++, libpcap, and Node.js.</div>
-      </div>
-    </div>
-    <div class="live-pill"><div class="live-dot"></div>Live Demo</div>
-  </div>
-
-  <!-- STEP 1 -->
-  <div class="section-label"><span class="step-num">1</span> What is being captured</div>
-  <div class="stats">
-    <div class="scard">
-      <div class="scard-label">Packets Captured</div>
-      <div class="scard-val blue" id="s-total">0</div>
-      <div class="scard-sub">this session</div>
-    </div>
-    <div class="scard">
-      <div class="scard-label">Live Speed</div>
-      <div class="scard-val" id="s-speed">0.00</div>
-      <div class="scard-sub">Kbps</div>
-      <div class="speed-track"><div class="speed-fill" id="s-bar" style="width:0%"></div></div>
-    </div>
-    <div class="scard">
-      <div class="scard-label">Unique Endpoints</div>
-      <div class="scard-val" id="s-ips">0</div>
-      <div class="scard-sub">active IPs</div>
-    </div>
-    <div class="scard">
-      <div class="scard-label">Threats Blocked</div>
-      <div class="scard-val red" id="s-blocked">0</div>
-      <div class="scard-sub">malicious packets</div>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-box">
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5L12 1z"/></svg></div>
+      <span class="logo-name">PacketGuard</span>
+      <span class="logo-sub">Deep Packet Inspection Suite</span>
     </div>
   </div>
-
-  <!-- STEP 2 -->
-  <div class="section-label"><span class="step-num">2</span> Raw packet stream</div>
-  <div class="row2">
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Live Traffic</span>
-        <span class="cbadge" id="stream-badge">0 packets</span>
-      </div>
-      <div class="tbl-head"><span>Protocol</span><span>Geo</span><span>Flow</span><span>Detected As</span></div>
-      <div id="log-list"></div>
-    </div>
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Packets / Second</span>
-        <span class="cbadge">Timeline</span>
-      </div>
-      <canvas id="timeline"></canvas>
-    </div>
+  <div class="topbar-right">
+    <span class="tb-pill"><span class="live-dot"></span>Live</span>
+    <span class="tb-pill alert" id="tb-alerts">0 Alerts</span>
+    <a href="how-it-works.html" target="_blank" class="tb-pill arch">View Architecture →</a>
   </div>
+</div>
 
-  <!-- STEP 3 -->
-  <div class="section-label"><span class="step-num">3</span> Application identification — DPI engine output</div>
-  <div class="row3">
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">App Traffic Breakdown</span>
-        <span class="cbadge" id="app-badge">0 apps</span>
-      </div>
-      <div class="donut-wrap">
-        <canvas id="appdist" width="100" height="100" style="flex-shrink:0"></canvas>
-        <div class="app-leg" id="app-legend"></div>
-      </div>
+<div class="navbar">
+  <div class="nav-item active" onclick="switchTab('dashboard',this)">Dashboard</div>
+  <div class="nav-item" onclick="switchTab('dpi',this)">DPI Engine</div>
+  <div class="nav-item" onclick="switchTab('attacks',this)">Attacks</div>
+  <div class="nav-item" onclick="switchTab('rules',this)">Live Demo</div>
+</div>
+
+<div class="content">
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard">
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">Packets Captured</div><div class="stat-val blue" id="s-total">0</div><div class="stat-sub">this session</div></div>
+      <div class="stat"><div class="stat-label">Live Speed</div><div class="stat-val" id="s-speed">0.00</div><div class="stat-sub">Kbps</div><div class="sptrack"><div class="spfill" id="s-bar" style="width:0%"></div></div></div>
+      <div class="stat"><div class="stat-label">Unique Endpoints</div><div class="stat-val" id="s-ips">0</div><div class="stat-sub">active IPs</div></div>
+      <div class="stat"><div class="stat-label">Threats Blocked</div><div class="stat-val red" id="s-blocked">0</div><div class="stat-sub">malicious</div></div>
+      <div class="stat"><div class="stat-label">Packets Destroyed</div><div class="stat-val amber" id="s-destroyed">0</div><div class="stat-sub">integrity fail</div></div>
     </div>
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Protocol Split</span>
-        <span class="cbadge">TCP / UDP / ICMP</span>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Live Packet Stream</span>
+        <div class="panel-controls">
+          <select class="pselect"><option>All</option><option>TCP</option><option>UDP</option><option>ICMP</option></select>
+          <select class="pselect"><option>Last Hour</option><option>Last 10 min</option></select>
+          <span class="pbadge" id="stream-badge">0 packets</span>
+        </div>
       </div>
-      <canvas id="proto-chart"></canvas>
+      <table>
+        <thead><tr><th></th><th>Source IP</th><th>Destination IP</th><th>Protocol</th><th>Application</th><th>Country</th><th>Avg NRT</th><th>Traffic</th><th>Status</th></tr></thead>
+        <tbody id="main-table"></tbody>
+      </table>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Top Applications</span><span class="pbadge" id="app-badge">0</span></div>
+        <table class="mini-table">
+          <thead><tr><th>Application</th><th>Packets</th><th>Traffic</th><th>%</th></tr></thead>
+          <tbody id="app-table"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Protocol Distribution</span></div>
+        <table class="mini-table">
+          <thead><tr><th>Protocol</th><th>Count</th><th>Traffic</th><th>Share</th></tr></thead>
+          <tbody id="proto-table"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- STEP 4 -->
-  <div class="section-label"><span class="step-num">4</span> Threat detection and blocking</div>
-  <div class="row4">
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Threat Alerts</span>
-        <span class="cbadge red" id="alert-badge">0 alerts</span>
+  <!-- DPI TAB -->
+  <div id="tab-dpi" style="display:none">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">DPI Engine — Application Detection</span>
+        <div class="panel-controls">
+          <span class="pbadge green">SNI Extraction Active</span>
+          <span class="pbadge">libpcap v1.10</span>
+          <span class="pbadge">C++23</span>
+        </div>
       </div>
-      <div id="alert-list"><div class="empty-msg">No threats detected yet</div></div>
-    </div>
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Top Blocked Sources</span>
-        <span class="cbadge">by packet count</span>
-      </div>
-      <div id="threat-list"><div class="empty-msg">Monitoring...</div></div>
+      <table>
+        <thead><tr><th></th><th>URL / Domain</th><th>Application</th><th>Source</th><th>Destination</th><th>Detection Method</th><th>Avg NRT</th><th>Traffic</th></tr></thead>
+        <tbody id="dpi-table"></tbody>
+      </table>
     </div>
   </div>
 
-  <script>
-    const PKTS=[
-      {src:'192.168.1.12',dst:'142.250.80.46',proto:'TCP',country:'US',app:'Google',blocked:false},
-      {src:'192.168.1.12',dst:'157.240.22.35',proto:'TCP',country:'US',app:'WhatsApp',blocked:false},
-      {src:'10.0.0.5',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',blocked:true},
-      {src:'192.168.1.12',dst:'172.217.14.78',proto:'TCP',country:'US',app:'YouTube',blocked:false},
-      {src:'10.0.0.8',dst:'1.1.1.1',proto:'UDP',country:'AU',app:'DNS',blocked:true},
-      {src:'192.168.1.55',dst:'103.102.166.10',proto:'TCP',country:'IN',app:'Wikipedia',blocked:false},
-      {src:'172.16.0.3',dst:'23.185.0.2',proto:'TCP',country:'US',app:'HTTPS',blocked:false},
-      {src:'192.168.1.12',dst:'140.82.112.4',proto:'TCP',country:'US',app:'GitHub',blocked:false},
-      {src:'10.0.0.2',dst:'1.2.3.4',proto:'ICMP',country:'CN',app:'Unknown',blocked:true},
-      {src:'192.168.1.88',dst:'93.184.216.34',proto:'TCP',country:'US',app:'HTTPS',blocked:false},
-      {src:'172.16.0.9',dst:'104.18.32.10',proto:'TCP',country:'IN',app:'LeetCode',blocked:false},
-      {src:'10.0.0.15',dst:'35.190.0.1',proto:'UDP',country:'SG',app:'DNS',blocked:false},
-      {src:'192.168.2.3',dst:'34.107.221.82',proto:'TCP',country:'DE',app:'GFG',blocked:false},
-      {src:'10.0.0.7',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',blocked:true},
-      {src:'192.168.3.5',dst:'52.94.236.248',proto:'TCP',country:'US',app:'AWS',blocked:false},
-      {src:'10.0.1.2',dst:'1.2.3.4',proto:'TCP',country:'RU',app:'Unknown',blocked:true},
-    ];
-    const ACLR={
-      'Google':'#185FA5','YouTube':'#A32D2D','WhatsApp':'#0F6E56','GitHub':'#3C3489',
-      'LeetCode':'#854F0B','Wikipedia':'#3B6D11','HTTPS':'#5F5E5A','DNS':'#D85A30',
-      'GFG':'#993556','AWS':'#BA7517','Unknown':'#888780'
-    };
+  <!-- ATTACKS TAB -->
+  <div id="tab-attacks" style="display:none">
+    <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat"><div class="stat-label">Total Threats</div><div class="stat-val red" id="a-total">0</div></div>
+      <div class="stat"><div class="stat-label">IP Blacklist Hits</div><div class="stat-val red" id="a-ip">0</div></div>
+      <div class="stat"><div class="stat-label">Content Filter Hits</div><div class="stat-val amber" id="a-filter">0</div></div>
+      <div class="stat"><div class="stat-label">Integrity Failures</div><div class="stat-val amber" id="a-integrity">0</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">Threat Log</span><span class="pbadge red" id="threat-badge">0 threats</span></div>
+      <table>
+        <thead><tr><th>Time</th><th>Source IP</th><th>Destination IP</th><th>Country</th><th>Reason</th><th>Action</th></tr></thead>
+        <tbody id="attack-table"></tbody>
+      </table>
+    </div>
+  </div>
 
-    let total=0,blocked=0,idx=0,alertCount=0,pps=0,tcpC=0,udpC=0,icmpC=0;
-    const ips=new Set(),appC={},threats={};
-    const tlD=Array(20).fill(0),tlL=Array(20).fill('');
-
-    const tlChart=new Chart(document.getElementById('timeline').getContext('2d'),{
-      type:'line',
-      data:{labels:tlL,datasets:[{data:tlD,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.07)',borderWidth:1.5,pointRadius:0,fill:true,tension:0.45}]},
-      options:{animation:{duration:200},responsive:true,scales:{x:{display:false},y:{display:true,grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#bbb',font:{size:10},maxTicksLimit:4}}},plugins:{legend:{display:false}}}
-    });
-
-    const appChart=new Chart(document.getElementById('appdist').getContext('2d'),{
-      type:'doughnut',
-      data:{labels:[],datasets:[{data:[],backgroundColor:[],borderWidth:0}]},
-      options:{cutout:'65%',animation:{duration:300},plugins:{legend:{display:false}},responsive:false}
-    });
-
-    const protoChart=new Chart(document.getElementById('proto-chart').getContext('2d'),{
-      type:'bar',
-      data:{labels:['TCP','UDP','ICMP'],datasets:[{data:[0,0,0],backgroundColor:['#185FA5','#3B6D11','#854F0B'],borderRadius:6,borderWidth:0}]},
-      options:{animation:{duration:300},responsive:true,scales:{x:{grid:{display:false},ticks:{color:'#aaa',font:{size:11}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#bbb',font:{size:10},maxTicksLimit:4}}},plugins:{legend:{display:false}}}
-    });
-
-    function ts(){
-      const n=new Date();
-      return[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':');
-    }
-
-    function updateApp(){
-      const entries=Object.entries(appC).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      const tot=entries.reduce((s,e)=>s+e[1],0)||1;
-      appChart.data.labels=entries.map(e=>e[0]);
-      appChart.data.datasets[0].data=entries.map(e=>e[1]);
-      appChart.data.datasets[0].backgroundColor=entries.map(e=>ACLR[e[0]]||'#888');
-      appChart.update();
-      document.getElementById('app-badge').textContent=Object.keys(appC).length+' apps';
-      document.getElementById('app-legend').innerHTML=entries.map(([app,n])=>`
-        <div class="app-leg-row">
-          <div class="app-leg-left"><div class="ldot" style="background:${ACLR[app]||'#888'}"></div>${app}</div>
-          <span class="app-leg-pct">${Math.round(n/tot*100)}%</span>
-        </div>`).join('');
-    }
-
-    function updateThreats(){
-      const top=Object.entries(threats).sort((a,b)=>b[1]-a[1]).slice(0,4);
-      const max=top[0]?top[0][1]:1;
-      if(!top.length)return;
-      document.getElementById('threat-list').innerHTML=top.map(([ip,n])=>`
-        <div class="threat-row">
-          <span class="threat-ip">${ip}</span>
-          <div class="threat-bar-wrap"><div class="threat-bar" style="width:${Math.round(n/max*100)}%"></div></div>
-          <span class="threat-count">${n}</span>
-        </div>`).join('');
-    }
-
-    function tick(){
-      const p=PKTS[idx%PKTS.length]; idx++;
-      total++; pps++;
-      ips.add(p.src); ips.add(p.dst);
-      appC[p.app]=(appC[p.app]||0)+1;
-      if(p.proto==='TCP')tcpC++; else if(p.proto==='UDP')udpC++; else icmpC++;
-
-      if(p.blocked){
-        blocked++;
-        threats[p.dst]=(threats[p.dst]||0)+1;
-        alertCount++;
-        document.getElementById('alert-badge').textContent=alertCount+' alerts';
-        const al=document.getElementById('alert-list');
-        if(al.firstChild&&al.firstChild.className==='empty-msg'){al.innerHTML='';}
-        const d=document.createElement('div');
-        d.className='alert-item';
-        d.innerHTML=`<div class="alert-dot"></div>
-          <div class="alert-body">
-            <div class="alert-title">Threat Blocked — ${p.country}</div>
-            <div class="alert-detail">${p.src} &rarr; ${p.dst}</div>
+  <!-- LIVE DEMO TAB -->
+  <div id="tab-rules" style="display:none">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Interactive Rule Engine</span>
+        <span class="pbadge green">Apply rules — watch stream react live</span>
+      </div>
+      <div class="demo-grid">
+        <div class="dc">
+          <div class="dc-title">Block an IP</div>
+          <div class="dc-desc">Enter any IP — all packets to/from it get flagged and blocked in the stream instantly.</div>
+          <input class="inp" id="ip-input" placeholder="e.g. 142.250.80.46"/>
+          <button class="dbtn r" onclick="blockIP()">Block IP</button>
+          <div class="ebox"><div class="elabel">Effect</div><div class="eval" id="ip-effect">Enter an IP to block</div></div>
+        </div>
+        <div class="dc">
+          <div class="dc-title">Content Filter</div>
+          <div class="dc-desc">Toggle filters — matching domain packets get dropped with reason logged in Attacks tab.</div>
+          <div class="tog-row"><span class="tog-label">Adult sites</span><label class="tog"><input type="checkbox" id="adult-tog" onchange="applyFilter()"><span class="tsl"></span></label></div>
+          <div class="tog-row"><span class="tog-label">Social media</span><label class="tog"><input type="checkbox" id="social-tog" onchange="applyFilter()"><span class="tsl"></span></label></div>
+          <div class="ebox"><div class="elabel">Effect</div><div class="eval green" id="filter-effect">All traffic allowed</div></div>
+        </div>
+        <div class="dc">
+          <div class="dc-title">Bandwidth Throttle</div>
+          <div class="dc-desc">Simulate data plan usage — at 90%+ YouTube automatically drops to 144p and speed degrades.</div>
+          <div class="range-label"><span>Data used</span><span class="range-val" id="bw-val">0%</span></div>
+          <input type="range" min="0" max="100" value="0" step="1" id="bw-slider" oninput="updateBW(this.value)"/>
+          <div class="ebox"><div class="elabel">Effect</div><div class="eval green" id="bw-effect">Full speed — no throttle</div></div>
+        </div>
+        <div class="dc">
+          <div class="dc-title">Packet Integrity Check</div>
+          <div class="dc-desc">Send a malformed packet — if any of 5 fields mismatch, the engine destroys it immediately.</div>
+          <button class="dbtn p" onclick="sendMalformed()">Send Malformed Packet</button>
+          <div class="field-grid">
+            <div class="fi"><div class="fi-label">Checksum</div><div class="fi-val" id="f-checksum">—</div></div>
+            <div class="fi"><div class="fi-label">Sequence</div><div class="fi-val" id="f-seq">—</div></div>
+            <div class="fi"><div class="fi-label">Flags</div><div class="fi-val" id="f-flags">—</div></div>
+            <div class="fi"><div class="fi-label">Length</div><div class="fi-val" id="f-length">—</div></div>
+            <div class="fi"><div class="fi-label">Protocol</div><div class="fi-val" id="f-proto">—</div></div>
+            <div class="fi"><div class="fi-label">Verdict</div><div class="fi-val" id="f-verdict">—</div></div>
           </div>
-          <div class="alert-time">${ts()}</div>`;
-        al.prepend(d);
-        if(al.children.length>5)al.removeChild(al.lastChild);
-        updateThreats();
-      }
+        </div>
+      </div>
+    </div>
+  </div>
 
-      document.getElementById('s-total').textContent=total;
-      document.getElementById('s-blocked').textContent=blocked;
-      document.getElementById('s-ips').textContent=ips.size;
-      document.getElementById('stream-badge').textContent=total+' packets';
+</div>
 
-      protoChart.data.datasets[0].data=[tcpC,udpC,icmpC];
-      protoChart.update();
-      updateApp();
+<script>
+const ACLR={'Google':'#185FA5','YouTube':'#A32D2D','WhatsApp':'#0F6E56','GitHub':'#3C3489','LeetCode':'#854F0B','Wikipedia':'#3B6D11','HTTPS':'#5F5E5A','DNS':'#D85A30','GFG':'#993556','AWS':'#BA7517','Unknown':'#888780','Instagram':'#993556','Adult Site':'#a32d2d'};
+const DETECT={'Google':'SNI Match','YouTube':'SNI Match','WhatsApp':'IP Range','GitHub':'SNI Match','LeetCode':'SNI Match','Wikipedia':'IP Range','HTTPS':'Port 443','DNS':'Port 53','GFG':'SNI Match','AWS':'IP Range','Unknown':'Unknown','Instagram':'SNI Match','Adult Site':'Domain Filter'};
+const ADULT=['xvideos.com','pornhub.com','onlyfans.com'];
+const SOCIAL=['facebook.com','instagram.com','twitter.com'];
+let blockedIPs=new Set(['8.8.8.8','1.1.1.1','1.2.3.4']);
+let blockAdult=false,blockSocial=false,bwPct=0;
+let total=0,blocked=0,destroyed=0,idx=0,pps=0,tcpC=0,udpC=0,icmpC=0,alertCount=0;
+let filterHits=0,ipHits=0,integrityHits=0;
+const ips=new Set(),appC={};
 
-      const list=document.getElementById('log-list');
-      const row=document.createElement('div');
-      row.className='tbl-row'+(p.blocked?' blocked':'');
-      const pc=p.proto==='TCP'?'b-tcp':p.proto==='UDP'?'b-udp':'b-icmp';
-      const ab=p.blocked
-        ?`<span class="badge b-block">Blocked</span>`
-        :`<span class="badge b-app">${p.app}</span>`;
-      row.innerHTML=`
-        <span><span class="badge ${pc}">${p.proto}</span></span>
-        <span style="font-size:11px;color:#888">${p.country}</span>
-        <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a1a1a">${p.src}&rarr;${p.dst}</span>
-        <span>${ab}</span>`;
-      list.prepend(row);
-      if(list.children.length>12)list.removeChild(list.lastChild);
-    }
+const BASE=[
+  {src:'192.168.1.12',dst:'142.250.80.46',proto:'TCP',country:'US',app:'Google',domain:'google.com',nrt:'0.615ms',kb:31},
+  {src:'192.168.1.12',dst:'157.240.22.35',proto:'TCP',country:'US',app:'WhatsApp',domain:'facebook.com',nrt:'0.558ms',kb:22},
+  {src:'10.0.0.5',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',domain:'',nrt:'0.600ms',kb:5},
+  {src:'192.168.1.12',dst:'172.217.14.78',proto:'TCP',country:'US',app:'YouTube',domain:'youtube.com',nrt:'0.575ms',kb:44},
+  {src:'10.0.0.8',dst:'1.1.1.1',proto:'UDP',country:'AU',app:'DNS',domain:'',nrt:'0.548ms',kb:5},
+  {src:'192.168.1.55',dst:'103.102.166.10',proto:'TCP',country:'IN',app:'Wikipedia',domain:'wikipedia.org',nrt:'0.609ms',kb:6},
+  {src:'172.16.0.3',dst:'23.185.0.2',proto:'TCP',country:'US',app:'HTTPS',domain:'',nrt:'0.619ms',kb:1},
+  {src:'192.168.1.12',dst:'140.82.112.4',proto:'TCP',country:'US',app:'GitHub',domain:'github.com',nrt:'0.624ms',kb:63},
+  {src:'10.0.0.2',dst:'1.2.3.4',proto:'ICMP',country:'CN',app:'Unknown',domain:'',nrt:'0.517ms',kb:7},
+  {src:'172.16.0.9',dst:'104.18.32.10',proto:'TCP',country:'IN',app:'LeetCode',domain:'leetcode.com',nrt:'0.751ms',kb:1},
+  {src:'192.168.2.3',dst:'34.107.221.82',proto:'TCP',country:'DE',app:'GFG',domain:'geeksforgeeks.org',nrt:'0.768ms',kb:44},
+  {src:'10.0.0.7',dst:'8.8.8.8',proto:'UDP',country:'US',app:'DNS',domain:'',nrt:'0.560ms',kb:14},
+  {src:'192.168.5.10',dst:'31.13.92.36',proto:'TCP',country:'US',app:'Instagram',domain:'instagram.com',nrt:'0.614ms',kb:8},
+  {src:'192.168.5.11',dst:'198.16.1.1',proto:'TCP',country:'US',app:'Adult Site',domain:'xvideos.com',nrt:'0.598ms',kb:12},
+  {src:'192.168.3.5',dst:'52.94.236.248',proto:'TCP',country:'US',app:'AWS',domain:'',nrt:'0.633ms',kb:18},
+];
 
-    setInterval(tick,550);
-    setInterval(()=>{
-      tlD.shift(); tlD.push(pps);
-      tlL.shift(); tlL.push('');
-      tlChart.update();
-      const spd=(pps*500+Math.random()*50).toFixed(2);
-      document.getElementById('s-speed').textContent=spd;
-      document.getElementById('s-bar').style.width=Math.min(parseFloat(spd)/15,100)+'%';
-      pps=0;
-    },1000);
-  </script>
+function ts(){const n=new Date();return[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>x.toString().padStart(2,'0')).join(':')}
+function kb2str(kb){return kb>1024?(kb/1024).toFixed(1)+' MB':kb+' KB'}
+function mkBar(kb,maxKb,cls=''){const w=Math.max(Math.round(kb/maxKb*80),4);return`<div class="traffic-bar"><div class="tbar ${cls}" style="width:${w}px"></div><span style="font-size:11px;color:#888">${kb2str(kb)}</span></div>`}
+
+function chkBlocked(p){
+  if(blockedIPs.has(p.dst)||blockedIPs.has(p.src))return{blocked:true,reason:'IP Blacklist'};
+  if(blockAdult&&ADULT.includes(p.domain))return{blocked:true,reason:'Adult Content Filter'};
+  if(blockSocial&&SOCIAL.includes(p.domain))return{blocked:true,reason:'Social Media Filter'};
+  return{blocked:false};
+}
+
+function addAttackRow(p,reason,action){
+  const atr=document.createElement('tr');
+  atr.className=action==='Blocked'?'blocked':action==='Destroyed'?'destroyed':'throttled';
+  atr.innerHTML=`<td style="font-family:monospace">${ts()}</td><td style="font-family:monospace">${p.src}</td><td style="font-family:monospace">${p.dst}</td><td>${p.country||'—'}</td><td>${reason}</td><td><span class="badge ${action==='Blocked'?'b-block':action==='Destroyed'?'b-destroy':'b-throttle'}">${action}</span></td>`;
+  const at=document.getElementById('attack-table');
+  at.prepend(atr);if(at.rows.length>14)at.deleteRow(at.rows.length-1);
+}
+
+function tick(){
+  const p=BASE[idx%BASE.length];idx++;
+  total++;pps++;
+  ips.add(p.src);ips.add(p.dst);
+  if(p.proto==='TCP')tcpC++;else if(p.proto==='UDP')udpC++;else icmpC++;
+  const chk=chkBlocked(p);
+  const throttled=bwPct>=90&&p.domain==='youtube.com';
+  let rc='',statusBadge=`<span class="badge b-allow">Allowed</span>`;
+  if(chk.blocked){
+    rc='blocked';statusBadge=`<span class="badge b-block">Blocked</span>`;
+    blocked++;alertCount++;
+    if(chk.reason==='IP Blacklist')ipHits++;else filterHits++;
+    document.getElementById('tb-alerts').textContent=alertCount+' Alerts';
+    document.getElementById('a-total').textContent=blocked+destroyed;
+    document.getElementById('a-ip').textContent=ipHits;
+    document.getElementById('a-filter').textContent=filterHits;
+    document.getElementById('threat-badge').textContent=(blocked+destroyed)+' threats';
+    addAttackRow(p,chk.reason,'Blocked');
+  } else if(throttled){
+    rc='throttled';statusBadge=`<span class="badge b-throttle">144p</span>`;
+    addAttackRow(p,'Bandwidth 90%+ — downgraded','Throttled');
+  }
+  appC[p.app]=(appC[p.app]||0)+1;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-blocked').textContent=blocked;
+  document.getElementById('s-ips').textContent=ips.size;
+  document.getElementById('stream-badge').textContent=total+' packets';
+  const pc=p.proto==='TCP'?'b-tcp':p.proto==='UDP'?'b-udp':'b-icmp';
+  const tr=document.createElement('tr');tr.className=rc;
+  tr.innerHTML=`<td><span class="badge ${pc}">${p.proto}</span></td><td style="font-family:monospace">${p.src}</td><td style="font-family:monospace">${p.dst}</td><td>${p.proto}</td><td><span style="color:${ACLR[p.app]||'#888'};font-weight:500">${p.app}</span></td><td>${p.country}</td><td style="font-family:monospace">${p.nrt}</td><td>${mkBar(p.kb,63,rc==='blocked'?'red':rc==='throttled'?'amber':'')}</td><td>${statusBadge}</td>`;
+  const tb=document.getElementById('main-table');tb.prepend(tr);if(tb.rows.length>12)tb.deleteRow(tb.rows.length-1);
+  const dtr=document.createElement('tr');
+  dtr.innerHTML=`<td><span class="badge ${pc}">${p.proto}</span></td><td style="font-family:monospace">${p.domain||p.dst}</td><td><span style="color:${ACLR[p.app]||'#888'};font-weight:500">${p.app}</span></td><td style="font-family:monospace">${p.src}</td><td style="font-family:monospace">${p.dst}</td><td>${DETECT[p.app]||'Port'}</td><td style="font-family:monospace">${p.nrt}</td><td>${mkBar(p.kb,63)}</td>`;
+  const dt=document.getElementById('dpi-table');dt.prepend(dtr);if(dt.rows.length>12)dt.deleteRow(dt.rows.length-1);
+  updateAppTable();updateProtoTable();
+}
+
+function updateAppTable(){
+  const entries=Object.entries(appC).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const tot=entries.reduce((s,e)=>s+e[1],0)||1;
+  document.getElementById('app-badge').textContent=Object.keys(appC).length;
+  document.getElementById('app-table').innerHTML=entries.map(([app,n])=>`<tr><td><span style="color:${ACLR[app]||'#888'};font-weight:500">${app}</span></td><td>${n}</td><td>${mkBar(n*2,tot*2)}</td><td style="color:#aaa">${Math.round(n/tot*100)}%</td></tr>`).join('');
+}
+function updateProtoTable(){
+  const tot=tcpC+udpC+icmpC||1;
+  document.getElementById('proto-table').innerHTML=[['TCP',tcpC,'b-tcp'],['UDP',udpC,'b-udp'],['ICMP',icmpC,'b-icmp']].map(([p,n,c])=>`<tr><td><span class="badge ${c}">${p}</span></td><td>${n}</td><td>${mkBar(n,tot)}</td><td style="color:#aaa">${Math.round(n/tot*100)}%</td></tr>`).join('');
+}
+
+setInterval(tick,550);
+setInterval(()=>{
+  const base=bwPct>=90?80:bwPct>=70?300:580;
+  const spd=(pps*base+Math.random()*40).toFixed(2);
+  document.getElementById('s-speed').textContent=spd;
+  document.getElementById('s-bar').style.width=Math.min(parseFloat(spd)/12,100)+'%';
+  pps=0;
+},1000);
+
+function switchTab(name,el){
+  ['dashboard','dpi','attacks','rules'].forEach(t=>{document.getElementById('tab-'+t).style.display='none';});
+  document.getElementById('tab-'+name).style.display='block';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function blockIP(){
+  const ip=document.getElementById('ip-input').value.trim();
+  if(!ip)return;
+  blockedIPs.add(ip);
+  const el=document.getElementById('ip-effect');el.className='eval red';el.textContent=ip+' — all packets blocked';
+  document.getElementById('ip-input').value='';
+}
+function applyFilter(){
+  blockAdult=document.getElementById('adult-tog').checked;
+  blockSocial=document.getElementById('social-tog').checked;
+  const el=document.getElementById('filter-effect');
+  if(!blockAdult&&!blockSocial){el.className='eval green';el.textContent='All traffic allowed';}
+  else{const r=[];if(blockAdult)r.push('Adult blocked');if(blockSocial)r.push('Social blocked');el.className='eval red';el.textContent=r.join(' · ');}
+}
+function updateBW(v){
+  bwPct=parseInt(v);document.getElementById('bw-val').textContent=v+'%';
+  const el=document.getElementById('bw-effect');
+  if(bwPct<70){el.className='eval green';el.textContent='Full speed — no throttle';}
+  else if(bwPct<90){el.className='eval amber';el.textContent='Speed degrading...';}
+  else{el.className='eval red';el.textContent='YouTube → 144p · Speed capped';}
+}
+
+const IC=[
+  {checksum:'0x4A2F',seq:'3842719104',flags:'0x018',length:'1420',proto:'TCP (6)',fail:null},
+  {checksum:'0xFFFF',seq:'3842719104',flags:'0x018',length:'1420',proto:'TCP (6)',fail:'checksum'},
+  {checksum:'0x4A2F',seq:'0xDEAD',flags:'0x018',length:'1420',proto:'TCP (6)',fail:'seq'},
+  {checksum:'0x4A2F',seq:'3842719104',flags:'0x000',length:'1420',proto:'TCP (6)',fail:'flags'},
+  {checksum:'0x4A2F',seq:'3842719104',flags:'0x018',length:'99999',proto:'TCP (6)',fail:'length'},
+  {checksum:'0x4A2F',seq:'3842719104',flags:'0x018',length:'1420',proto:'0xFF',fail:'proto'},
+];
+let icIdx=1;
+function sendMalformed(){
+  const c=IC[icIdx%IC.length];icIdx++;
+  const map={checksum:'f-checksum',seq:'f-seq',flags:'f-flags',length:'f-length',proto:'f-proto'};
+  Object.entries(map).forEach(([k,id])=>{const el=document.getElementById(id);el.textContent=c[k];el.className='fi-val '+(c.fail===k?'bad':'ok');});
+  const v=document.getElementById('f-verdict');
+  if(c.fail){
+    v.textContent='DESTROYED';v.className='fi-val bad';
+    destroyed++;integrityHits++;
+    document.getElementById('s-destroyed').textContent=destroyed;
+    document.getElementById('a-integrity').textContent=integrityHits;
+    document.getElementById('a-total').textContent=blocked+destroyed;
+    document.getElementById('threat-badge').textContent=(blocked+destroyed)+' threats';
+    addAttackRow({src:'malformed',dst:'—',country:'—'},'Integrity: '+c.fail+' mismatch','Destroyed');
+  } else {v.textContent='VALID';v.className='fi-val ok';}
+}
+</script>
 </body>
-</html> 
+</html>
